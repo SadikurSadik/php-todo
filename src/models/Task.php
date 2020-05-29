@@ -10,11 +10,12 @@ class Task
     protected $name;
     protected $status;
 
-    public function __construct($name = null, $status = TaskStatus::PENDING)
+    public function __construct($name = null, $status = TaskStatus::PENDING, $id = null)
     {
         if(!empty($name)) {
             $this->name = $name;
             $this->status = $status;
+            $this->id = $id;
         }
     }
 
