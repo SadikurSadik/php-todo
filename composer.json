@@ -9,5 +9,12 @@
             "email": "sadikur@deligram.com"
         }
     ],
-    "require": {}
+    "autoload": {
+        "psr-4": {
+            "todo\\": "src/"
+        }
+    },
+    "require": {
+        "ext-pdo": "*"
+    }
 }
