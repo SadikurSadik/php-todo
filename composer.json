@@ -1,0 +1,13 @@
+{
+    "name": "sadik/php-todo",
+    "description": "Simple todo task manager with php oop and vue.js",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Sadik",
+            "email": "sadikur@deligram.com"
+        }
+    ],
+    "require": {}
+}
