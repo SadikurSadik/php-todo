@@ -3,6 +3,7 @@
 namespace todo\storage;
 
 use PDO;
+use todo\enums\TaskStatus;
 use todo\Models\Task;
 
 class TaskStorageManager implements TaskStorageInterface
@@ -54,6 +55,13 @@ class TaskStorageManager implements TaskStorageInterface
     {
         $statement = $this->db->prepare("DELETE FROM tasks WHERE id = :id");
         $statement->execute(['id' => $id]);
+        return $statement->fetch();
+    }
+
+    public function deleteCompleted()
+    {
+        $statement = $this->db->prepare("DELETE FROM tasks WHERE status = :status");
+        $statement->execute(['status' => TaskStatus::COMPLETED]);
         return $statement->fetch();
     }
 }
