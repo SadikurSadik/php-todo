@@ -25,11 +25,11 @@ var app = new Vue({
         pendingItemText: function () {
             let count = 0;
             let text = '';
-            for (var i = 0; i < this.allTodos.length; i++) {
-                if (parseInt(this.allTodos[i].status) === 0) {
+            this.allTodos.map(function (todo) {
+                if (parseInt(todo.status) === 0) {
                     count++;
                 }
-            }
+            });
             text += count.toString() + (count > 1 ? ' items' : ' item') + ' left';
 
             return text;
@@ -52,26 +52,28 @@ var app = new Vue({
         clearCompleted: function () {
             axios.get(this.buildUrl('delete_completed_task')).then((response) => {
                 if (parseInt(response.data.code) === 200) {
-                    for (let i = 0; i < this.allTodos.length; i++) {
-                        if (parseInt(this.allTodos[i].status) === 1) {
-                            this.allTodos.splice(i, 1);
+                    let $this = this;
+                    this.allTodos.map(function (todo, key) {
+                        if (parseInt(todo.status) === 1) {
+                            $this.allTodos.splice(key, 1);
                         }
-                    }
+                    });
                 }
             }).catch(error => {
                 console.log(error);
             });
         },
         filterTodos: function () {
-            if (this.activeTab == 'All') return this.allTodos;
-            let todos = [];
-            for (let i = 0; i < this.allTodos.length; i++) {
-                if ((parseInt(this.allTodos[i].status) === 0 && this.activeTab == 'Active') || (parseInt(this.allTodos[i].status) === 1 && this.activeTab == 'Completed')) {
-                    todos.push(this.allTodos[i]);
+            if (this.activeTab === 'All') return this.allTodos;
+            let todoList = [];
+            let $this = this;
+            this.allTodos.map(function (todo) {
+                if ((parseInt(todo.status) === 0 && $this.activeTab === 'Active') || (parseInt(todo.status) === 1 && $this.activeTab === 'Completed')) {
+                    todoList.push(todo);
                 }
-            }
+            });
 
-            return todos;
+            return todoList;
         },
         storeTodo: function (name) {
             axios.post(this.buildUrl('create_task'), {
@@ -88,13 +90,13 @@ var app = new Vue({
         },
         getAllTodos: function () {
             axios.get(this.buildUrl()).then((response) => {
-                let todos = response.data.data;
-                for (let i = 0; i < todos.length; i++) {
-                    todos[i].active = false;
-                    todos[i].edit = false;
-                    todos[i].status = parseInt(todos[i].status);
-                }
-                this.allTodos = todos;
+                let todoList = response.data.data;
+                todoList.map(function (todo) {
+                    todo.active = false;
+                    todo.edit = false;
+                    todo.status = parseInt(todo.status);
+                });
+                this.allTodos = todoList;
             }).catch(error => {
                 console.log(error);
             });
@@ -108,7 +110,7 @@ var app = new Vue({
             return url;
         },
         updateTask(id, name, status) {
-            this.apiRequest(this.buildUrl('update_task', id), 'post',{
+            this.apiRequest(this.buildUrl('update_task', id), 'post', {
                 name: name,
                 status: status,
                 id: id
@@ -123,11 +125,12 @@ var app = new Vue({
         deleteTask: function (todo) {
             this.apiRequest(this.buildUrl('delete_task', todo.id)).then((response) => {
                 if (parseInt(response.data.code) === 200) {
-                    for (let i = 0; i < this.allTodos.length; i++) {
-                        if (this.allTodos[i].id === todo.id) {
-                            this.allTodos.splice(i, 1);
+                    let $this = this;
+                    this.allTodos.map(function (item, key) {
+                        if (item.id === todo.id) {
+                            $this.allTodos.splice(key, 1);
                         }
-                    }
+                    });
                 }
             }, (error) => {
                 console.log(error);
