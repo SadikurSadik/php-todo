@@ -9,7 +9,7 @@ var app = new Vue({
         ],
         activeTab: 'All'
     },
-    mounted () {
+    mounted() {
         this.getAllTodos();
     },
     methods: {
@@ -25,8 +25,8 @@ var app = new Vue({
         pendingItemText: function () {
             let count = 0;
             let text = '';
-            for (var i=0; i < this.allTodos.length; i++) {
-                if(parseInt(this.allTodos[i].status) === 0) {
+            for (var i = 0; i < this.allTodos.length; i++) {
+                if (parseInt(this.allTodos[i].status) === 0) {
                     count++;
                 }
             }
@@ -38,7 +38,7 @@ var app = new Vue({
             return item.status ? 'images/check-circle-regular.svg' : 'images/circle-regular.svg';
         },
         completeTask: function (todo) {
-            if(todo.status == 0) {
+            if (todo.status == 0) {
                 this.updateTask(todo.id, todo.name, 1);
                 todo.status = 1;
             }
@@ -46,20 +46,12 @@ var app = new Vue({
         tabClick: function (tab) {
             this.activeTab = tab.text;
         },
-        /*showTodos: function (tabName = 'All') {
-            this.todos = [];
-            for (let i = 0; i < this.allTodos.length; i++) {
-                if(tabName == 'All' || (this.allTodos[i].status == 0 && tabName == 'Active') || (this.allTodos[i].status == 1 && tabName == 'Completed')) {
-                    this.todos.push(this.allTodos[i]);
-                }
-            }
-        },*/
         updateTodo: function (todo) {
             this.updateTask(todo.id, todo.name, todo.status);
         },
-        getActiveTab: function() {
-            for (let i=0; i<this.tabs.length; i++) {
-                if(this.tabs[i].active) {
+        getActiveTab: function () {
+            for (let i = 0; i < this.tabs.length; i++) {
+                if (this.tabs[i].active) {
                     return this.tabs[i].text;
                 }
             }
@@ -68,17 +60,19 @@ var app = new Vue({
         },
         clearCompleted: function () {
             axios.get(this.buildUrl('delete_completed_task')).then((response) => {
-                if(parseInt(response.data.code) === 200) {
+                if (parseInt(response.data.code) === 200) {
                     for (let i = 0; i < this.allTodos.length; i++) {
-                        if(parseInt(this.allTodos[i].status) === 1) {
+                        if (parseInt(this.allTodos[i].status) === 1) {
                             this.allTodos.splice(i, 1);
                         }
                     }
                 }
-            }).catch( error => { console.log(error); });
+            }).catch(error => {
+                console.log(error);
+            });
         },
         filterTodos: function () {
-            if(this.activeTab == 'All') return this.allTodos;
+            if (this.activeTab == 'All') return this.allTodos;
             let todos = [];
             for (let i = 0; i < this.allTodos.length; i++) {
                 if ((parseInt(this.allTodos[i].status) === 0 && this.activeTab == 'Active') || (parseInt(this.allTodos[i].status) === 1 && this.activeTab == 'Completed')) {
@@ -97,23 +91,27 @@ var app = new Vue({
                 newTodo.edit = false;
                 newTodo.status = parseInt(newTodo.status);
                 this.allTodos.push(newTodo);
-            }).catch( error => { console.log(error); });
+            }).catch(error => {
+                console.log(error);
+            });
         },
         getAllTodos: function () {
             axios.get(this.buildUrl()).then((response) => {
-                todos = response.data.data;
-                for(let i=0; i<todos.length; i++) {
+                let todos = response.data.data;
+                for (let i = 0; i < todos.length; i++) {
                     todos[i].active = false;
                     todos[i].edit = false;
                     todos[i].status = parseInt(todos[i].status);
                 }
                 this.allTodos = todos;
-            }).catch( error => { console.log(error); });
+            }).catch(error => {
+                console.log(error);
+            });
         },
         buildUrl: function (event = 'get_all_task', id = null) {
-            let url = 'api.php?event='+event;
-            if(id) {
-                url += '&id='+id;
+            let url = 'api.php?event=' + event;
+            if (id) {
+                url += '&id=' + id;
             }
 
             return url;
@@ -124,23 +122,23 @@ var app = new Vue({
                 status: status,
                 id: id
             }).then((response) => {
-                if(parseInt(response.data.code) === 200) {
-                    return true;
-                } else {
-                    return false;
-                }
-            }).catch( error => { return false });
+                return parseInt(response.data.code) === 200;
+            }).catch(error => {
+                return false
+            });
         },
         deleteTask: function (todo) {
             axios.get(this.buildUrl('delete_task', todo.id)).then((response) => {
-                if(parseInt(response.data.code) === 200) {
+                if (parseInt(response.data.code) === 200) {
                     for (let i = 0; i < this.allTodos.length; i++) {
-                        if(this.allTodos[i].id === todo.id) {
+                        if (this.allTodos[i].id === todo.id) {
                             this.allTodos.splice(i, 1);
                         }
                     }
                 }
-            }).catch( error => { console.log(error); });
+            }).catch(error => {
+                console.log(error);
+            });
         }
     }
 });
