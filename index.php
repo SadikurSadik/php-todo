@@ -21,7 +21,8 @@
                     <input v-show = "todo.edit == true" v-model = "todo.name" class="edit-field"
                            v-on:blur= "todo.edit=false; $emit('update')"
                            @keyup.enter = "todo.edit=false; $emit('update'); updateTodo(todo)">
-                    <a v-show="todo.active" v-on:click="deleteTask(todo)" class="f-right actionBtn" href="#">x</a>
+                    <a v-show="todo.active" v-on:click="deleteTask(todo)" class="f-right actionBtn" href="#">
+                        <img height="16" src="images/times-solid.svg" alt="Delete"></a>
                 </li>
             </ul>
         </div>

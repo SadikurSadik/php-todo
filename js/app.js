@@ -38,7 +38,7 @@ var app = new Vue({
             return item.status ? 'images/check-circle-regular.svg' : 'images/circle-regular.svg';
         },
         completeTask: function (todo) {
-            if (todo.status == 0) {
+            if (parseInt(todo.status) === 0) {
                 this.updateTask(todo.id, todo.name, 1);
                 todo.status = 1;
             }
@@ -48,15 +48,6 @@ var app = new Vue({
         },
         updateTodo: function (todo) {
             this.updateTask(todo.id, todo.name, todo.status);
-        },
-        getActiveTab: function () {
-            for (let i = 0; i < this.tabs.length; i++) {
-                if (this.tabs[i].active) {
-                    return this.tabs[i].text;
-                }
-            }
-
-            return 'All';
         },
         clearCompleted: function () {
             axios.get(this.buildUrl('delete_completed_task')).then((response) => {
@@ -117,18 +108,20 @@ var app = new Vue({
             return url;
         },
         updateTask(id, name, status) {
-            axios.post(this.buildUrl('update_task', id), {
+            this.apiRequest(this.buildUrl('update_task', id), 'post',{
                 name: name,
                 status: status,
                 id: id
             }).then((response) => {
-                return parseInt(response.data.code) === 200;
-            }).catch(error => {
-                return false
+                if (parseInt(response.data.code) === 200) {
+
+                }
+            }, (error) => {
+                console.log(error);
             });
         },
         deleteTask: function (todo) {
-            axios.get(this.buildUrl('delete_task', todo.id)).then((response) => {
+            this.apiRequest(this.buildUrl('delete_task', todo.id)).then((response) => {
                 if (parseInt(response.data.code) === 200) {
                     for (let i = 0; i < this.allTodos.length; i++) {
                         if (this.allTodos[i].id === todo.id) {
@@ -136,8 +129,15 @@ var app = new Vue({
                         }
                     }
                 }
-            }).catch(error => {
+            }, (error) => {
                 console.log(error);
+            });
+        },
+        apiRequest: function (url, method = 'get', data = {}) {
+            return axios({
+                method: method,
+                url: url,
+                data: data
             });
         }
     }
