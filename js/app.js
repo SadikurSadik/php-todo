@@ -1,21 +1,16 @@
 var app = new Vue({
     el: '#app',
     data: {
-        allTodos: [
-            {id: 1, name: 'Item 1', status: 1, active: false, edit: false},
-            {id: 2, name: 'Item 2', status: 0, active: false, edit: false},
-            {id: 3, name: 'Item 3', status: 1, active: false, edit: false}
-        ],
-        todos: [
-            {id: 1, name: 'Item 1', status: 1, active: false, edit: false},
-            {id: 2, name: 'Item 2', status: 0, active: false, edit: false},
-            {id: 3, name: 'Item 3', status: 1, active: false, edit: false}
-        ],
+        allTodos: [],
         tabs: [
-            {text: 'All', active: true},
-            {text: 'Active', active: false},
-            {text: 'Completed', active: false},
-        ]
+            {text: 'All'},
+            {text: 'Active'},
+            {text: 'Completed'},
+        ],
+        activeTab: 'All'
+    },
+    mounted () {
+        this.getAllTodos();
     },
     methods: {
         mousehover: function (item) {
@@ -30,8 +25,8 @@ var app = new Vue({
         pendingItemText: function () {
             let count = 0;
             let text = '';
-            for (var i=0; i < this.todos.length; i++) {
-                if(this.todos[i].status == 0) {
+            for (var i=0; i < this.allTodos.length; i++) {
+                if(parseInt(this.allTodos[i].status) === 0) {
                     count++;
                 }
             }
@@ -44,31 +39,23 @@ var app = new Vue({
         },
         completeTask: function (todo) {
             if(todo.status == 0) {
+                this.updateTask(todo.id, todo.name, 1);
                 todo.status = 1;
-                // TODO:: api request for task update
             }
         },
         tabClick: function (tab) {
-            for(let i = 0; i < this.tabs.length; i++) {
-                if(this.tabs[i].text === tab.text) {
-                    this.tabs[i].active = true;
-                } else {
-                    this.tabs[i].active = false;
-                }
-            }
-
-            this.showTodos(tab.text);
+            this.activeTab = tab.text;
         },
-        showTodos: function (tabName = 'All') {
+        /*showTodos: function (tabName = 'All') {
             this.todos = [];
             for (let i = 0; i < this.allTodos.length; i++) {
                 if(tabName == 'All' || (this.allTodos[i].status == 0 && tabName == 'Active') || (this.allTodos[i].status == 1 && tabName == 'Completed')) {
                     this.todos.push(this.allTodos[i]);
                 }
             }
-        },
+        },*/
         updateTodo: function (todo) {
-            // TODO::update task via Api call
+            this.updateTask(todo.id, todo.name, todo.status);
         },
         getActiveTab: function() {
             for (let i=0; i<this.tabs.length; i++) {
@@ -80,13 +67,80 @@ var app = new Vue({
             return 'All';
         },
         clearCompleted: function () {
+            axios.get(this.buildUrl('delete_completed_task')).then((response) => {
+                if(parseInt(response.data.code) === 200) {
+                    for (let i = 0; i < this.allTodos.length; i++) {
+                        if(parseInt(this.allTodos[i].status) === 1) {
+                            this.allTodos.splice(i, 1);
+                        }
+                    }
+                }
+            }).catch( error => { console.log(error); });
+        },
+        filterTodos: function () {
+            if(this.activeTab == 'All') return this.allTodos;
+            let todos = [];
             for (let i = 0; i < this.allTodos.length; i++) {
-                if(this.allTodos[i].status == 1) {
-                    this.allTodos.splice(i, 1);
+                if ((parseInt(this.allTodos[i].status) === 0 && this.activeTab == 'Active') || (parseInt(this.allTodos[i].status) === 1 && this.activeTab == 'Completed')) {
+                    todos.push(this.allTodos[i]);
                 }
             }
-            this.showTodos(this.getActiveTab());
-            // TODO::clear all task via api call
+
+            return todos;
+        },
+        storeTodo: function (name) {
+            axios.post(this.buildUrl('create_task'), {
+                name: name,
+            }).then((response) => {
+                let newTodo = response.data.data;
+                newTodo.active = false;
+                newTodo.edit = false;
+                newTodo.status = parseInt(newTodo.status);
+                this.allTodos.push(newTodo);
+            }).catch( error => { console.log(error); });
+        },
+        getAllTodos: function () {
+            axios.get(this.buildUrl()).then((response) => {
+                todos = response.data.data;
+                for(let i=0; i<todos.length; i++) {
+                    todos[i].active = false;
+                    todos[i].edit = false;
+                    todos[i].status = parseInt(todos[i].status);
+                }
+                this.allTodos = todos;
+            }).catch( error => { console.log(error); });
+        },
+        buildUrl: function (event = 'get_all_task', id = null) {
+            let url = 'api.php?event='+event;
+            if(id) {
+                url += '&id='+id;
+            }
+
+            return url;
+        },
+        updateTask(id, name, status) {
+            axios.post(this.buildUrl('update_task', id), {
+                name: name,
+                status: status,
+                id: id
+            }).then((response) => {
+                if(parseInt(response.data.code) === 200) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }).catch( error => { return false });
+        },
+        deleteTask: function (todo) {
+            axios.get(this.buildUrl('delete_task', todo.id)).then((response) => {
+                if(parseInt(response.data.code) === 200) {
+                    for (let i = 0; i < this.allTodos.length; i++) {
+                        if(this.allTodos[i].id === todo.id) {
+                            this.allTodos.splice(i, 1);
+                        }
+                    }
+                }
+            }).catch( error => { console.log(error); });
         }
     }
 });

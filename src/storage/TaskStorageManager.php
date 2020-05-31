@@ -17,7 +17,7 @@ class TaskStorageManager implements TaskStorageInterface
 
     public function all()
     {
-        $statement = $this->db->prepare("SELECT id, name, status, created_at FROM tasks order by id desc");
+        $statement = $this->db->prepare("SELECT id, name, status, created_at FROM tasks");
         $statement->setFetchMode(PDO::FETCH_CLASS, Task::class);
         $statement->execute();
 

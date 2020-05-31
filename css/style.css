@@ -18,7 +18,7 @@ h1#title {
 }
 
 #todo-wrapper input#name {
-    width: 484px;
+    width: 485px;
     line-height: 35px;
     font-size: 23px;
     padding: 2px 5px;
@@ -69,4 +69,10 @@ h1#title {
     width: 478px;
     padding-left: 10px;
     padding-right: 10px;
+}
+
+.edit-field {
+    font-size: 16px;
+    line-height: 25px;
+    width: 200px;
 }

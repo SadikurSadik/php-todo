@@ -53,8 +53,9 @@ class TaskApi
     private function createNewTask()
     {
         try {
-            $task = new Task($_POST['name']);
-            return $this->apiResponse($this->taskManager->update($task));
+            $postData = json_decode(file_get_contents('php://input'));
+            $task = new Task($postData->name);
+            return $this->apiResponse($this->taskManager->store($task));
         } catch (\Exception $e) {
             return $this->apiResponse([], self::FAILED, HttpCode::BAD_REQUEST, 'Opps! Something went wrong.');
         }
@@ -63,7 +64,8 @@ class TaskApi
     private function updateTask()
     {
         try {
-            $task = new Task($_POST['name'], $_POST['status'], $_POST['id']);
+            $postData = json_decode(file_get_contents('php://input'));
+            $task = new Task($postData->name, $postData->status, $postData->id);
             return $this->apiResponse($this->taskManager->update($task));
         } catch (\Exception $e) {
             return $this->apiResponse([], self::FAILED, HttpCode::BAD_REQUEST, 'Opps! Something went wrong.');
